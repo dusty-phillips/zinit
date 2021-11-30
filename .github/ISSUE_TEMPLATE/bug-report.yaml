@@ -1,0 +1,34 @@
+name: Bug Report
+description: File a bug report
+title: " "
+labels: ["🐞 bug", "triage"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Issue description
+      description: What went wrong?
+
+  - type: input
+    id: zinit-config
+    attributes:
+      label: zinit config
+      description: The ices you used
+      placeholder: |
+        ```zsh
+        zinit \
+          null \
+          atclone'true' \
+          for zdharma_continuum/null
+        ```
+    validations:
+      required: true
+
+  - type: input
+    id: zsh-version
+    validations:
+      required: true
+    attributes:
+      label: ZSH Version (`$ZSH_VERSION`)
+      description: The ices you used
+      placeholder: 5.???
