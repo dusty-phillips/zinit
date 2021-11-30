@@ -22,15 +22,15 @@ LC_ALL=C
 
 local TEST_DIR="$PWD/$1"
 
-# Setup paths and load Zplugin
+# Setup paths and load Zinit
 local REPLY p k l ll
 local -a reply
-local -A ZPLGM
-ZPLGM[BIN_DIR]=$PWD
+local -A ZINIT
+ZINIT[BIN_DIR]=$PWD
 command mkdir -p $PWD/$1/answer
-ZPLGM[HOME_DIR]=$PWD/$1/answer
-builtin source "${ZPLGM[BIN_DIR]}/zplugin.zsh"
-command mkdir $PWD/$1/answer/snippets/OMZ::plugins
+ZINIT[HOME_DIR]=$PWD/$1/answer
+builtin source "${ZINIT[BIN_DIR]}/zinit.zsh"
+command mkdir -p $PWD/$1/answer/snippets/OMZ::plugins
 
 # FUNCTION: internet_mock_git {{{
 internet_mock_git() {
@@ -154,12 +154,12 @@ tst_verbosity() {
 # FUNCTION: no_colors {{{
 no_colors() {
     local -A mymap
-    mymap=( "${(kv)ZPLGM[@]}" )
+    mymap=( "${(kv)ZINIT[@]}" )
     local -a keys
     keys=( ${mymap[(I)*(col-)*]} )
 
     for k in "${keys[@]}"; do
-        ZPLGM[$k]=""
+        ZINIT[$k]=""
     done
 }
 # }}}
@@ -167,7 +167,7 @@ no_colors() {
 store_state() {
     setopt localoptions extendedglob nokshglob noksharrays
     local out="$1" out2="$2"
-    (( ${+functions[-zplg-diff-env-compute]} )) || builtin source ${ZPLGM[BIN_DIR]}"/zplugin-autoload.zsh"
+    (( ${+functions[-zinit-diff-env-compute]} )) || builtin source ${ZINIT[BIN_DIR]}"/zinit-autoload.zsh"
 
     local -A not_show_keys
     not_show_keys=( UPAR 1 DOWNAR 1 RIGHTAR 1 LEFTAR 1 \
@@ -180,29 +180,29 @@ store_state() {
         )
 
     local -A mymap
-    mymap=( "${(kv)ZPLGM[@]}" )
+    mymap=( "${(kv)ZINIT[@]}" )
     local -a keys
     keys=( ${mymap[(I)*(col-)*]} NEW_AUTOLOAD )
 
     for k in "${keys[@]}"; do
-        unset "ZPLGM[$k]"
+        unset "ZINIT[$k]"
     done
 
     keys=( ${(k)mymap[(R)[[:digit:]]##.[[:digit:]]#]} )
     for k in "${keys[@]}"; do
-        ZPLGM[$k]="__reset-by-test__"
+        ZINIT[$k]="__reset-by-test__"
     done
 
-    ZPLGM[EXTENDED_GLOB]=""
+    ZINIT[EXTENDED_GLOB]=""
 
-    ZPLGM=( "${(kv)ZPLGM[@]/${PWD:h}\//}" )
-    ZPLGM=( "${(kv)ZPLGM[@]/${${PWD:h}:h}\//}" )
+    ZINIT=( "${(kv)ZINIT[@]/${PWD:h}\//}" )
+    ZINIT=( "${(kv)ZINIT[@]/${${PWD:h}:h}\//}" )
 
     # Sort and print
-    for k in "${(ko)ZPLGM[@]}"; do
+    for k in "${(ko)ZINIT[@]}"; do
         [[ -n "${not_show_keys[(k)$k]}" ]] && continue
         local -a arr
-        arr=( "${(z@)ZPLGM[$k]}" )
+        arr=( "${(z@)ZINIT[$k]}" )
         local val="${(j: :o)arr}"
         print -rl -- "$k" "$val" >>! "$out"
     done
@@ -218,16 +218,16 @@ store_state() {
     fpath=( "${fpath[@]/${${PWD:h}:h}\//}" )
     fpath=( "${fpath[@]/${PWD:h}\//}" )
 
-    for k in "${ZPLG_REGISTERED_PLUGINS[@]}"; do
-        -zplg-diff-functions-compute "$k" || print -r -- "Failed: -zplg-diff-functions-compute for $k" >>! "$out2"
-        -zplg-diff-options-compute "$k"   || print -r -- "Failed: -zplg-diff-options-compute for $k" >>! "$out2"
-        -zplg-diff-env-compute "$k"       || print -r -- "Failed: -zplg-diff-env-compute $k" >>! "$out2"
-        -zplg-diff-parameter-compute "$k" || print -r -- "Failed: -zplg-diff-parameter-compute $k" >>! "$out2"
+    for k in "${ZINIT_REGISTERED_PLUGINS[@]}"; do
+        -zinit-diff-functions-compute "$k" || print -r -- "Failed: -zinit-diff-functions-compute for $k" >>! "$out2"
+        -zinit-diff-options-compute "$k"   || print -r -- "Failed: -zinit-diff-options-compute for $k" >>! "$out2"
+        -zinit-diff-env-compute "$k"       || print -r -- "Failed: -zinit-diff-env-compute $k" >>! "$out2"
+        -zinit-diff-parameter-compute "$k" || print -r -- "Failed: -zinit-diff-parameter-compute $k" >>! "$out2"
     done
 
-    print -r -- "ZPLG_REGISTERED_PLUGINS:${${:- ${(qq@)ZPLG_REGISTERED_PLUGINS}}:# }" >>! "$out"
+    print -r -- "ZINIT_REGISTERED_PLUGINS:${${:- ${(qq@)ZINIT_REGISTERED_PLUGINS}}:# }" >>! "$out"
 
-    keys=( ZPLG_REGISTERED_STATES ZPLG_SNIPPETS ZPLG_SICE )
+    keys=( ZINIT_REGISTERED_STATES ZINIT_SNIPPETS ZINIT_SICE )
 
     for k in "${keys[@]}"; do
         [[ "${(ok@)#${(Pk@)k}}" -gt 0 ]] && print -rn -- "$k:" >>! "$out" || print -rn -- "$k: " >>! "$out"
@@ -240,8 +240,8 @@ store_state() {
         print >>! "$out"
     done
     print
-    [[ -n "$ZPLG_COMPDEF_REPLAY" ]] && print -r -- "ZPLG_COMPDEF_REPLAY: ${(qq@)ZPLG_COMPDEF_REPLAY}" >>! "$out" || print -r -- "ZPLG_COMPDEF_REPLAY: " >>! "$out"
-    print -r -- "ZPLG_CUR_PLUGIN: ${(qq)ZPLG_CUR_PLUGIN}" >>! "$out"
+    [[ -n "$ZINIT_COMPDEF_REPLAY" ]] && print -r -- "ZINIT_COMPDEF_REPLAY: ${(qq@)ZINIT_COMPDEF_REPLAY}" >>! "$out" || print -r -- "ZINIT_COMPDEF_REPLAY: " >>! "$out"
+    print -r -- "ZINIT_CUR_PLUGIN: ${(qq)ZINIT_CUR_PLUGIN}" >>! "$out"
 
     print -rl -- "---" "Parameter module: ${+modules[zsh/parameter]}" >>! "$out"
 }
