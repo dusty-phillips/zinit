@@ -8,8 +8,10 @@ body:
       label: Issue description
       description: What went wrong?
 
-  - type: input
+  - type: textarea
     id: zinit-config
+    validations:
+      required: true
     attributes:
       label: zinit config
       description: The ices you used
@@ -20,8 +22,6 @@ body:
           atclone'true' \
           for zdharma_continuum/null
         ```
-    validations:
-      required: true
 
   - type: input
     id: zsh-version
@@ -29,5 +29,5 @@ body:
       required: true
     attributes:
       label: ZSH Version (`$ZSH_VERSION`)
-      description: The ices you used
-      placeholder: 5.???
+      description: ZSH version you're currently using
+      placeholder: 5.8
