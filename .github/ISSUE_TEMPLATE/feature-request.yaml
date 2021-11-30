@@ -1,0 +1,10 @@
+name: Feature request
+description: File a bug report
+title: " "
+labels: ["🎁 feature-request", "triage"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Feature request
+      description: Suggest a new feature
