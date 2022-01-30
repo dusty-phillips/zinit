@@ -1447,25 +1447,25 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
         local url=https://$urlpart
     }
 
+        #  linux   "((#a4)linuxmusl|musl|linux(-|_)gnu]|gnu)"
     local -A matchstr
     matchstr=(
+        aarch64 "aarch64"
+        amd64   "(amd64|x86_64|intel)"
         i386    "((386|686|linux32|x86*(#e))~*x86_64*)"
         i686    "((386|686|linux32|x86*(#e))~*x86_64*)"
-        x86_64  "(x86_64|amd64|intel|linux64)"
-        amd64   "(x86_64|amd64|intel|linux64)"
-        aarch64 "aarch64"
-        aarch64-2 "arm"
-        linux   "(linux|linux-gnu)"
-        darwin  "(darwin|mac|macos|osx|os-x)"
+        x86_64  "(amd64|x86_64|intel)"
         cygwin  "(windows|cygwin|[-_]win|win64|win32)"
+        darwin  "(((apple|)[-_]darwin|macos)^*.AppImage)"
         windows "(windows|cygwin|[-_]win|win64|win32)"
         msys "(windows|msys|cygwin|[-_]win|win64|win32)"
-        armv7l  "(arm7|armv7)"
-        armv7l-2 "arm7"
-        armv6l  "(arm6|armv6)"
-        armv6l-2 "arm"
+        aarch64-2 "arm"
         armv5l  "(arm5|armv5)"
         armv5l-2 "arm"
+        armv6l  "(arm6|armv6)"
+        armv6l-2 "arm"
+        armv7l  "(arm7|armv7)"
+        armv7l-2 "arm7"
     )
 
     local -a list init_list
@@ -1483,8 +1483,36 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
     for bpick ( "${bpicks[@]}" ) {
         list=( $init_list )
 
-        if [[ -n $bpick ]] {
-            list=( ${(M)list[@]:#(#i)*/$~bpick} )
+        # Remove Debian .deb packages if dpkg absent
+        if (( $#list > 1 && !${+commands[dpkg-deb]} )) {
+            list2=( ${list[@]:#*.deb} )
+            (( $#list2 > 0 )) && list=( ${list2[@]} )
+        }
+
+        # Remove Debian .deb packages if dpkg absent
+        if (( $#list > 1 && !${+commands[dpkg-deb]} )) {
+            list2=( ${list[@]:#*.deb} )
+            (( $#list2 > 0 )) && list=( ${list2[@]} )
+        }
+
+        # Remove rpm packages if Redhat Package Manager absent
+        if (( $#list > 1 && !${+commands[rpm]} )) {
+            list2=( ${list[@]:#*.rpm} )
+            (( $#list2 > 0 )) && list=( ${list2[@]} )
+        }
+
+        # Remove .apk android apps regardless of system
+        list2=( ${list[@]:#*.apk} )
+        (( $#list2 > 0 )) && list=( ${list2[@]} )
+
+        if (( $#list > 1 )) {
+            list2=( ${(M)list[@]:#(#i)*${~matchstr[${${OSTYPE%(#i)}%%(-|)##}]:-${${OSTYPE%(#i)}%%(-|)##}}*} )
+            (( $#list2 > 0 )) && list=( ${list2[@]} )
+        }
+
+        if (( $#list > 1 )) {
+            list2=( ${(M)list[@]:#(#i)*${~matchstr[$CPUTYPE]:-${CPUTYPE#(#i)(i|amd)}}*} )
+            (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
         if (( $#list > 1 )) {
@@ -1498,7 +1526,11 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
         }
 
         if (( $#list > 1 )) {
-            list2=( ${(M)list[@]:#(#i)*${~matchstr[$CPUTYPE]:-${CPUTYPE#(#i)(i|amd)}}*} )
+            list2=( ${(M)list[@]:#(#i)*${~matchstr[$OSTYPE(#i)]:-${OSTYPE#(#i)}}*} )
+
+            +zinit-message "{pre}.zinit-get-latest-gh-r-url-part{msg2} DEBUG:{msg}" \
+	        "\`{obj}${list2}{msg}'{rst}"
+
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
@@ -1509,16 +1541,6 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
 
         if (( $#list > 1 )) {
             list2=( ${list[@]:#(#i)*.(sha[[:digit:]]#|asc)} )
-            (( $#list2 > 0 )) && list=( ${list2[@]} )
-        }
-
-        if (( $#list > 1 && $+commands[dpkg-deb] )) {
-            list2=( ${list[@]:#*.deb} )
-            (( $#list2 > 0 )) && list=( ${list2[@]} )
-        }
-
-        if (( $#list > 1 && $+commands[rpm] )) {
-            list2=( ${list[@]:#*.rpm} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
