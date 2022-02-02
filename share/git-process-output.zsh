@@ -11,16 +11,10 @@ if (( COLS < 10 )) {
 # Credit to molovo/revolver for the ideas
 typeset -ga progress_frames
 progress_frames=(
-  '0.2 ▹▹▹▹▹ ▸▹▹▹▹ ▹▸▹▹▹ ▹▹▸▹▹ ▹▹▹▸▹ ▹▹▹▹▸'
-  '0.2 ▁ ▃ ▄ ▅ ▆ ▇ ▆ ▅ ▄ ▃'
-  '0.2 ▏ ▎ ▍ ▌ ▋ ▊ ▉ ▊ ▋ ▌ ▍ ▎'
-  '0.2 ▖ ▘ ▝ ▗'
-  '0.2 ◢ ◣ ◤ ◥'
-  '0.2 ▌ ▀ ▐ ▄'
-  '0.2 ✶ ✸ ✹ ✺ ✹ ✷'
+  '0.1 ⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏'
 )
 
-integer -g progress_style=$(( RANDOM % 7 + 1 )) cur_frame=1
+integer -g progress_style=$(( RANDOM % 1 + 1 )) cur_frame=1
 typeset -F SECONDS=0 last_time=0
 
 # Alpine Linux doesn't have tput; FreeBSD and Dragonfly BSD have termcap
@@ -114,7 +108,7 @@ if [[ -n $TERM ]] {
 while read -r line; do
     (( ++ loop_count ))
     if [[ "$line" = "Cloning into"* ]]; then
-        print; print $line
+        print $line
         continue
     elif [[ "$line" = (#i)*user*name* || "$line" = (#i)*password* ]]; then
         print; print $line
