@@ -1456,7 +1456,8 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
         i686    "((386|686|linux32|x86*(#e))~*x86_64*)"
         x86_64  "(amd64|x86_64|intel)"
         cygwin  "(windows|cygwin|[-_]win|win64|win32)"
-        darwin  "(((apple|)[-_]darwin|macos)^*.AppImage)"
+        darwin  "(((apple)?[-_]darwin|mac(os)?)^*.AppImage)"
+        android "(apk)"
         windows "(windows|cygwin|[-_]win|win64|win32)"
         msys "(windows|msys|cygwin|[-_]win|win64|win32)"
         aarch64-2 "arm"
@@ -1489,19 +1490,13 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
-        # Remove Debian .deb packages if dpkg absent
-        if (( $#list > 1 && !${+commands[dpkg-deb]} )) {
-            list2=( ${list[@]:#*.deb} )
-            (( $#list2 > 0 )) && list=( ${list2[@]} )
-        }
-
-        # Remove rpm packages if Redhat Package Manager absent
+        # Remove RedHat .rpm packages if Redhat Package Manager absent
         if (( $#list > 1 && !${+commands[rpm]} )) {
             list2=( ${list[@]:#*.rpm} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
-        # Remove .apk android apps regardless of system
+        # Remove Android .apk packages regardless of system
         list2=( ${list[@]:#*.apk} )
         (( $#list2 > 0 )) && list=( ${list2[@]} )
 
@@ -1527,10 +1522,6 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
 
         if (( $#list > 1 )) {
             list2=( ${(M)list[@]:#(#i)*${~matchstr[$OSTYPE(#i)]:-${OSTYPE#(#i)}}*} )
-
-            +zinit-message "{pre}.zinit-get-latest-gh-r-url-part{msg2} DEBUG:{msg}" \
-	        "\`{obj}${list2}{msg}'{rst}"
-
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
