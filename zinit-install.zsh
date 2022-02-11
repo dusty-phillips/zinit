@@ -1458,7 +1458,7 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
         android "(apk)"
         cygwin  "(windows|cygwin|[-_]win|win64|win32)"
         darwin  "(((apple|-|_)darwin|mac(os|))^*.AppImage)"
-        linux   "(lnx|Appimage)"
+        linux   "((#a4)linuxmusl|musl|linux(-|_)gnu]|gnu|lnx|Appimage)"
         windows "(windows|cygwin|[-_]win|win64|win32)"
         msys "(windows|msys|cygwin|[-_]win|win64|win32)"
         aarch64-2 "arm"
