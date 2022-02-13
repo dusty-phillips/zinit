@@ -1447,6 +1447,8 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
         local url=https://$urlpart
     }
 
+        #  linux   "(?=.*()*)(?!.*(arm|darwin)).*"
+        #  linux   "((#a4)linuxmusl|musl|linux(-|_)gnu]|gnu|lnx|Appimage)"
         #  linux   "((#a4)linuxmusl|musl|linux(-|_)gnu]|gnu)"
     local -A matchstr
     matchstr=(
@@ -1458,7 +1460,7 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
         android "(apk)"
         cygwin  "(windows|cygwin|[-_]win|win64|win32)"
         darwin  "(((apple|-|_)darwin|mac(os|))^*.AppImage)"
-        linux   "((#a4)linuxmusl|musl|linux(-|_)gnu]|gnu|lnx|Appimage)"
+        linux-musl  "(#i)((musl|linux-musl))"
         windows "(windows|cygwin|[-_]win|win64|win32)"
         msys "(windows|msys|cygwin|[-_]win|win64|win32)"
         aarch64-2 "arm"
@@ -1502,7 +1504,7 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
         (( $#list2 > 0 )) && list=( ${list2[@]} )
 
         if (( $#list > 1 )) {
-            list2=( ${(M)list[@]:#(#i)*${~matchstr[${${OSTYPE%(#i)}%%(-|)##}]:-${${OSTYPE%(#i)}%%(-|)##}}*} )
+            list2=( ${(M)list[@]:#(#i)*${(S)~matchstr[${${OSTYPE%(#i)}%%(-|)##}]:-${${OSTYPE%(#i)}%%(-|)##}}*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
