@@ -1488,20 +1488,20 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
     for bpick ( "${bpicks[@]}" ) {
         list=( $init_list )
 
-        # Remove Debian .deb packages if dpkg absent
+                # Remove Debian .deb packages if dpkg absent
         if (( $#list > 1 && !${+commands[dpkg-deb]} )) {
-            list2=( ${list[@]:#*.deb$} )
+            list2=( ${list[@]:#*.deb*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
         # Remove RedHat .rpm packages if Redhat Package Manager absent
         if (( $#list > 1 && !${+commands[rpm]} )) {
-            list2=( ${list[@]:#*.rpm$} )
+            list2=( ${list[@]:#*.rpm*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
         # Remove Android .apk packages regardless of system
-        list2=( ${list[@]:#*.apk$} )
+        list2=( ${list[@]:#*.apk*} )
         (( $#list2 > 0 )) && list=( ${list2[@]} )
 
         if (( $#list > 1 )) {
