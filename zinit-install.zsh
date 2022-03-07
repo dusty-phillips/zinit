@@ -1490,19 +1490,28 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
 
         # Get .deb packages if dpkg-deb present
         if (( $#list > 1 && ${+commands[dpkg-deb]} == 1 )) {
-            list2=( ${list[@]:#*.deb*} )
+            list2=( ${(M)list[@]:#*\.deb*} )
+            (( $#list2 > 0 )) && list=( ${list2[@]} )
+        } else {
+            list2=( ${list[@]:#*\.deb*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
         # Get .rpm packages if Redhat Package Manager present
         if (( $#list > 1 && ${+commands[rpm]} == 1 )) {
-            list2=( ${list[@]:#*.rpm*} )
+            list2=( ${(M)list[@]:#*.rpm*} )
+            (( $#list2 > 0 )) && list=( ${list2[@]} )
+        } else {
+            list2=( ${list[@]:#*\.rpm*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
         # Get .apk packages if Anbox present
         if (( $#list > 1 && ${+commands[anbox]} == 1 )) {
-            list2=( ${list[@]:#*.apk*} )
+            list2=( ${(M)list[@]:#*\.apk*} )
+            (( $#list2 > 0 )) && list=( ${list2[@]} )
+        } else {
+            list2=( ${list[@]:#*\.apk*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
