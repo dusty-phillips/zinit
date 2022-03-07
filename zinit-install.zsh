@@ -1453,24 +1453,24 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
     local -A matchstr
     matchstr=(
         aarch64 "aarch64"
-        amd64   "(amd64|x86_64|intel)"
-        i386    "((386|686|linux32|x86*(#e))~*x86_64*)"
-        i686    "((386|686|linux32|x86*(#e))~*x86_64*)"
-        x86_64  "(amd64|x86_64|intel)"
-        android "(apk)"
-        cygwin  "(windows|cygwin|[-_]win|win64|win32)"
-        darwin  "(((apple|-|_)darwin|mac(os|))^*.AppImage)"
-        linux-musl "(musl|linux-musl(#e))"
-        linux-gnu  "(musl|linux-musl(#e))"
-        windows "(windows|cygwin|[-_]win|win64|win32)"
-        msys "(windows|msys|cygwin|[-_]win|win64|win32)"
         aarch64-2 "arm"
+        amd64   "(amd64|x86_64|intel)"
+        android "(apk)"
         armv5l  "(arm5|armv5)"
         armv5l-2 "arm"
         armv6l  "(arm6|armv6)"
         armv6l-2 "arm"
         armv7l  "(arm7|armv7)"
         armv7l-2 "arm7"
+        cygwin  "(windows|cygwin|[-_]win|win64|win32)"
+        darwin  "(((apple|-|_)darwin|mac(os|))^*.AppImage)"
+        i386    "((386|686|linux32|x86*(#e))~*x86_64*)"
+        i686    "((386|686|linux32|x86*(#e))~*x86_64*)"
+        linux-gnu  "(musl|linux-musl(#e))"
+        linux-musl "(musl|linux-musl(#e))"
+        msys "(windows|msys|cygwin|[-_]win|win64|win32)"
+        windows "(windows|cygwin|[-_]win|win64|win32)"
+        x86_64  "(amd64|x86_64|intel)"
     )
 
     local -a list init_list
@@ -1488,21 +1488,23 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
     for bpick ( "${bpicks[@]}" ) {
         list=( $init_list )
 
-                # Remove Debian .deb packages if dpkg absent
-        if (( $#list > 1 && !${+commands[dpkg-deb]} )) {
+        # Get .deb packages if dpkg-deb present
+        if (( $#list > 1 && ${+commands[dpkg-deb]} == 1 )) {
             list2=( ${list[@]:#*.deb*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
-        # Remove RedHat .rpm packages if Redhat Package Manager absent
-        if (( $#list > 1 && !${+commands[rpm]} )) {
+        # Get .rpm packages if Redhat Package Manager present
+        if (( $#list > 1 && ${+commands[rpm]} == 1 )) {
             list2=( ${list[@]:#*.rpm*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
-        # Remove Android .apk packages regardless of system
-        list2=( ${list[@]:#*.apk*} )
-        (( $#list2 > 0 )) && list=( ${list2[@]} )
+        # Get .apk packages if Anbox present
+        if (( $#list > 1 && ${+commands[anbox]} == 1 )) {
+            list2=( ${list[@]:#*.apk*} )
+            (( $#list2 > 0 )) && list=( ${list2[@]} )
+        }
 
         if (( $#list > 1 )) {
             list2=( ${(M)list[@]:#(#i)*${(S)~matchstr[${${OSTYPE%(#i)}%%(-|)##}]:-${${OSTYPE%(#i)}%%(-|)##}}*} )
