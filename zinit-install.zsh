@@ -1487,6 +1487,11 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
     reply=()
     for bpick ( "${bpicks[@]}" ) {
         list=( $init_list )
+        # Remove checksum.txt
+        list=( ${list[@]:#*checksums.txt*} )
+
+        +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} URL List: " \
+            "({obj}${(pj:\n:)${list[@]:t}}{rst})"
 
         # Get .deb packages if dpkg-deb present
         if (( $#list > 1 && ${+commands[dpkg-deb]} == 1 )) {
@@ -1518,6 +1523,8 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
         if (( $#list > 1 )) {
             list2=( ${(M)list[@]:#(#i)*${(S)~matchstr[${${OSTYPE%(#i)}%%(-|)##}]:-${${OSTYPE%(#i)}%%(-|)##}}*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
+            +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} URL List: " \
+                "({obj}${(pj:\n:)${list[@]:t}}{rst})"
         }
 
         if (( $#list > 1 )) {
