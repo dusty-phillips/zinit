@@ -1448,8 +1448,7 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
     }
     local -A matchstr
     matchstr=(
-        aarch64 "aarch64"
-        aarch64-2 "arm"
+        arm64 "(aarch64|arm64)"
         amd64   "(amd64|x86_64|intel)"
         android "(apk)"
         armv5l  "(arm5|armv5)"
@@ -1462,8 +1461,8 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
         darwin  "((apple|[-_]darwin|mac(-|_|)os))"
         i386    "((386|686|linux32|x86*(#e))~*x86_64*)"
         i686    "((386|686|linux32|x86*(#e))~*x86_64*)"
-        linux-gnu "(linux|linux[-_]gnu(#e))"
-        linux-musl "(linux|musl|linux[-_]musl(#e))"
+        linux-gnu "((musl|linux[-_]musl)#)"
+        linux-musl "((musl|linux[-_]musl)#)"
         msys "(windows|msys|cygwin|[-_]win|win64|win32)"
         windows "(windows|cygwin|[-_]win|win64|win32)"
         x86_64  "(amd64|x86_64|intel)"
@@ -1488,7 +1487,7 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
         list=( ${list[@]:#*(checksums.txt|MD5SUMS|SHA1SUMS|sha256sum(#e)|manifest(#e)|pkg(#e)|sha256(#e)|AppImage(#e))*} )
 
         # Filter .deb packages if dpkg-deb present
-        if (( $#list > 1 && ${+commands[dpkg-deb]} == 1 )) {
+        if (( $#list < 1 && ${+commands[dpkg-deb]} == 1 )) {
             list2=( ${(M)list[@]:#*\.deb*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         } else {
@@ -1497,7 +1496,7 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
         }
 
         # Filter .rpm packages if Redhat Package Manager present
-        if (( $#list > 1 && ${+commands[rpm]} == 1 )) {
+        if (( $#list < 1 && ${+commands[rpm]} == 1 )) {
             list2=( ${(M)list[@]:#*.rpm*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         } else {
@@ -1558,8 +1557,8 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
-        +zinit-message -n "{pre}zinit-get-latest-gh-r-url-part:{rst} Final list:"
-        +zinit-message "{obj}${(pj:\n:)${list[@]:t}}{rst}"
+        # +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} Final list:"
+        # +zinit-message "{obj}${(pj:\n:)${list[@]:t}}{rst}"
 
         if (( !$#list )) {
             +zinit-message -n "{error}Didn't find correct Github" \
