@@ -1446,10 +1446,6 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
     } else {
         local url=https://$urlpart
     }
-
-        #  linux   "(?=.*()*)(?!.*(arm|darwin)).*"
-        #  linux   "((#a4)linuxmusl|musl|linux(-|_)gnu]|gnu|lnx|Appimage)"
-        #  linux   "((#a4)linuxmusl|musl|linux(-|_)gnu]|gnu)"
     local -A matchstr
     matchstr=(
         aarch64 "aarch64"
@@ -1463,7 +1459,7 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
         armv7l  "(arm7|armv7)"
         armv7l-2 "arm7"
         cygwin  "(windows|cygwin|[-_]win|win64|win32)"
-        darwin  "(((apple|-|_)darwin|mac(os|))^*.AppImage)"
+        darwin  "(apple|[-_]darwin|mac(-|_|)os)"
         i386    "((386|686|linux32|x86*(#e))~*x86_64*)"
         i686    "((386|686|linux32|x86*(#e))~*x86_64*)"
         linux-gnu  "(musl|linux-musl(#e))"
@@ -1487,8 +1483,9 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
     reply=()
     for bpick ( "${bpicks[@]}" ) {
         list=( $init_list )
-        # Remove checksum.txt
-        list=( ${list[@]:#*checksums.txt*} )
+
+        # Remove checksum artifacts
+        list=( ${list[@]:#*(checksums.txt|MD5SUMS|SHA1SUMS|\.sha256sum|\.manifest)*} )
 
         # Get .deb packages if dpkg-deb present
         if (( $#list > 1 && ${+commands[dpkg-deb]} == 1 )) {
@@ -1517,8 +1514,9 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
+        # Filter URLs by OS (e.g., Darwin, Linux, Windows)
         if (( $#list > 1 )) {
-            list2=( ${(M)list[@]:#(#i)*${(S)~matchstr[${${OSTYPE%(#i)}%%(-|)##}]:-${${OSTYPE%(#i)}%%(-|)##}}*} )
+            list2=( ${(M)list[@]:#(#i)*${~matchstr[${${OSTYPE%(#i)}%%(-|)[0-9.]##}]:-${${OSTYPE%(#i)}%%(-|)[0-9.]##}}*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
@@ -1537,13 +1535,9 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
+        # Filter URLs by OS (e.g., Darwin, Linux, Windows)
         if (( $#list > 1 )) {
-            list2=( ${(M)list[@]:#(#i)*${~matchstr[$OSTYPE(#i)]:-${OSTYPE#(#i)}}*} )
-            (( $#list2 > 0 )) && list=( ${list2[@]} )
-        }
-
-        if (( $#list > 1 )) {
-            list2=( ${(M)list[@]:#(#i)*${~matchstr[${${OSTYPE%(#i)-(gnu|musl)}%%(-|)[0-9.]##}]:-${${OSTYPE%(#i)-(gnu|musl)}%%(-|)[0-9.]##}}*} )
+            list2=( ${(M)list[@]:#(#i)*${~matchstr[${${OSTYPE%(#i)}%%(-|)[0-9.]##}]:-${${OSTYPE%(#i)}%%(-|)[0-9.]##}}*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
@@ -1551,9 +1545,6 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
             list2=( ${list[@]:#(#i)*.(sha[[:digit:]]#|asc)} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
-
-        +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} Final URL List:\n" \
-            "{obj}${(pj:\n:)${list[@]:t}}{rst}"
 
         if (( !$#list )) {
             +zinit-message -n "{error}Didn't find correct Github" \
