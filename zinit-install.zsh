@@ -1487,7 +1487,7 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
         # Remove checksum artifacts
         list=( ${list[@]:#*(checksums.txt|MD5SUMS|SHA1SUMS|\.sha256sum|\.manifest)*} )
 
-        # Get .deb packages if dpkg-deb present
+        # Filter .deb packages if dpkg-deb present
         if (( $#list > 1 && ${+commands[dpkg-deb]} == 1 )) {
             list2=( ${(M)list[@]:#*\.deb*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
@@ -1496,7 +1496,7 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
-        # Get .rpm packages if Redhat Package Manager present
+        # Filter .rpm packages if Redhat Package Manager present
         if (( $#list > 1 && ${+commands[rpm]} == 1 )) {
             list2=( ${(M)list[@]:#*.rpm*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
@@ -1505,7 +1505,7 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
-        # Get .apk packages if Anbox present
+        # Filter .apk packages if Anbox present
         if (( $#list > 1 && ${+commands[anbox]} == 1 )) {
             list2=( ${(M)list[@]:#*\.apk*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
@@ -1518,27 +1518,42 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
         if (( $#list > 1 )) {
             list2=( ${(M)list[@]:#(#i)*${~matchstr[${${OSTYPE%(#i)}%%(-|)[0-9.]##}]:-${${OSTYPE%(#i)-(gnu|musl)}%%(-|)[0-9.]##}}*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
+
+            +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} OSTYPE List: " \
+            "({obj}${(pj:\n:)${list[@]:t}}{rst})"
         }
 
         if (( $#list > 1 )) {
             list2=( ${(M)list[@]:#(#i)*${~matchstr[$CPUTYPE]:-${CPUTYPE#(#i)(i|amd)}}*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
+
+            +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} CPUTYPE List: " \
+                "({obj}${(pj:\n:)${list[@]:t}}{rst})"
         }
 
         if (( $#list > 1 )) {
             list2=( ${(M)list[@]:#(#i)*${~matchstr[$MACHTYPE]:-${MACHTYPE#(#i)(i|amd)}}*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
+
+            +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} MACHTYPE List: " \
+                "({obj}${(pj:\n:)${list[@]:t}}{rst})"
         }
 
         if (( ${#list} > 1 && ${#matchstr[${MACHTYPE}-2]} )) {
             list2=( ${(M)list[@]:#(#i)*${~matchstr[${MACHTYPE}-2]:-${MACHTYPE#(#i)(i|amd)}}*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
+
+            +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} MACHTYPE List: " \
+                "({obj}${(pj:\n:)${list[@]:t}}{rst})"
         }
 
         # Filter URLs by OS (e.g., Darwin, Linux, Windows)
         if (( $#list > 1 )) {
             list2=( ${(M)list[@]:#(#i)*${~matchstr[${${OSTYPE%(#i)}%%(-|)[0-9.]##}]:-${${OSTYPE%(#i)-(gnu|musl)}%%(-|)[0-9.]##}}*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
+
+            +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} OSTYPE List: " \
+                "({obj}${(pj:\n:)${list[@]:t}}{rst})"
         }
 
         if (( $#list > 1 )) {
