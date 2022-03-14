@@ -1462,8 +1462,8 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
         darwin  "(apple|[-_]darwin|mac(-|_|)os)"
         i386    "((386|686|linux32|x86*(#e))~*x86_64*)"
         i686    "((386|686|linux32|x86*(#e))~*x86_64*)"
-        linux-gnu  "(musl|linux-musl(#e))"
-        linux-musl "(musl|linux-musl(#e))"
+        linux-gnu "(linux|musl|linux[-_]musl(#e))"
+        linux-musl "(linux|musl|linux[-_]musl(#e))"
         msys "(windows|msys|cygwin|[-_]win|win64|win32)"
         windows "(windows|cygwin|[-_]win|win64|win32)"
         x86_64  "(amd64|x86_64|intel)"
@@ -1516,7 +1516,7 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
 
         # Filter URLs by OS (e.g., Darwin, Linux, Windows)
         if (( $#list > 1 )) {
-            list2=( ${(M)list[@]:#(#i)*${~matchstr[${${OSTYPE%(#i)}%%(-|)[0-9.]##}]:-${${OSTYPE%(#i)-(gnu|musl)}%%(-|)[0-9.]##}}*} )
+            list2=( ${(M)list[@]:#(#i)*${~matchstr[${${OSTYPE%(#i)}%%(-gnu|-musl)[0-9.]##}]:-${${OSTYPE%(#i)}%%(-gnu|-musl|)[0-9.]##}}*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
 
             +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} OSTYPE List: " \
@@ -1549,7 +1549,7 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
 
         # Filter URLs by OS (e.g., Darwin, Linux, Windows)
         if (( $#list > 1 )) {
-            list2=( ${(M)list[@]:#(#i)*${~matchstr[${${OSTYPE%(#i)}%%(-|)[0-9.]##}]:-${${OSTYPE%(#i)-(gnu|musl)}%%(-|)[0-9.]##}}*} )
+            list2=( ${(M)list[@]:#(#i)*${~matchstr[${${OSTYPE%(#i)}%%(-gnu|-musl)[0-9.]##}]:-${${OSTYPE%(#i)}%%(-gnu|-musl|)[0-9.]##}}*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
 
             +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} OSTYPE List: " \
