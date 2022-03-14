@@ -1459,11 +1459,11 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
         armv7l  "(arm7|armv7)"
         armv7l-2 "arm7"
         cygwin  "(windows|cygwin|[-_]win|win64|win32)"
-        darwin  "(apple|[-_]darwin|mac(-|_|)os)"
+        darwin  "((apple|[-_]darwin|mac(-|_|)os))"
         i386    "((386|686|linux32|x86*(#e))~*x86_64*)"
         i686    "((386|686|linux32|x86*(#e))~*x86_64*)"
-        linux-gnu "(linux|musl|linux[-_]musl(#e))"
-        linux-musl "(linux|musl|linux[-_]musl(#e))"
+        linux-gnu "(AppImage|linux|musl|linux[-_]musl(#e))"
+        linux-musl "(AppImage|linux|musl|linux[-_]musl(#e))"
         msys "(windows|msys|cygwin|[-_]win|win64|win32)"
         windows "(windows|cygwin|[-_]win|win64|win32)"
         x86_64  "(amd64|x86_64|intel)"
@@ -1485,7 +1485,7 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
         list=( $init_list )
 
         # Remove checksum artifacts
-        list=( ${list[@]:#*(checksums.txt|MD5SUMS|SHA1SUMS|\.sha256sum|\.manifest)*} )
+        list=( ${list[@]:#*(checksums.txt|MD5SUMS|SHA1SUMS|sha256sum(#e)|manifest(#e)|pkg(#e)|sha256(#e)|AppImage(#e))*} )
 
         # Filter .deb packages if dpkg-deb present
         if (( $#list > 1 && ${+commands[dpkg-deb]} == 1 )) {
