@@ -1462,8 +1462,8 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
         darwin  "((apple|[-_]darwin|mac(-|_|)os))"
         i386    "((386|686|linux32|x86*(#e))~*x86_64*)"
         i686    "((386|686|linux32|x86*(#e))~*x86_64*)"
-        linux-gnu "(AppImage|linux|musl|linux[-_]musl(#e))"
-        linux-musl "(AppImage|linux|musl|linux[-_]musl(#e))"
+        linux-gnu "(linux|linux[-_]gnu(#e))"
+        linux-musl "(linux|musl|linux[-_]musl(#e))"
         msys "(windows|msys|cygwin|[-_]win|win64|win32)"
         windows "(windows|cygwin|[-_]win|win64|win32)"
         x86_64  "(amd64|x86_64|intel)"
@@ -1519,47 +1519,47 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
             list2=( ${(M)list[@]:#(#i)*${~matchstr[${${OSTYPE%(#i)}%%(-|)[0-9.]##}]:-${${OSTYPE%(#i)}%%(-|)[0-9.]##}}*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
 
-            +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} OSTYPE List: " \
-            "({obj}${(pj:\n:)${list[@]:t}}{rst})"
+            # +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} OSTYPE List: " \
+            # "({obj}${(pj:\n:)${list[@]:t}}{rst})"
         }
 
         if (( $#list > 1 )) {
             list2=( ${(M)list[@]:#(#i)*${~matchstr[$CPUTYPE]:-${CPUTYPE#(#i)(i|amd)}}*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
 
-            +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} CPUTYPE List: " \
-                "({obj}${(pj:\n:)${list[@]:t}}{rst})"
+            # +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} CPUTYPE List: " \
+            #     "({obj}${(pj:\n:)${list[@]:t}}{rst})"
         }
 
         if (( $#list > 1 )) {
             list2=( ${(M)list[@]:#(#i)*${~matchstr[$MACHTYPE]:-${MACHTYPE#(#i)(i|amd)}}*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
 
-            +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} MACHTYPE List: " \
-                "({obj}${(pj:\n:)${list[@]:t}}{rst})"
+            # +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} MACHTYPE List: " \
+            #     "({obj}${(pj:\n:)${list[@]:t}}{rst})"
         }
 
         if (( ${#list} > 1 && ${#matchstr[${MACHTYPE}-2]} )) {
             list2=( ${(M)list[@]:#(#i)*${~matchstr[${MACHTYPE}-2]:-${MACHTYPE#(#i)(i|amd)}}*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
 
-            +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} MACHTYPE List: " \
-                "({obj}${(pj:\n:)${list[@]:t}}{rst})"
+            # +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} MACHTYPE List: " \
+            #     "({obj}${(pj:\n:)${list[@]:t}}{rst})"
         }
 
         # Filter URLs by OS (e.g., Darwin, Linux, Windows)
         if (( $#list > 1 )) {
             list2=( ${(M)list[@]:#(#i)*${~matchstr[${${OSTYPE%(#i)}%%(-|)[0-9.]##}]:-${${OSTYPE%(#i)}%%(-|)[0-9.]##}}*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
-
-            +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} OSTYPE List: " \
-                "({obj}${(pj:\n:)${list[@]:t}}{rst})"
         }
 
         if (( $#list > 1 )) {
             list2=( ${list[@]:#(#i)*.(sha[[:digit:]]#|asc)} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
+
+        +zinit-message -n "{pre}zinit-get-latest-gh-r-url-part:{rst} Final list:"
+        +zinit-message "{obj}${(pj:\n:)${list[@]:t}}{rst}"
 
         if (( !$#list )) {
             +zinit-message -n "{error}Didn't find correct Github" \
