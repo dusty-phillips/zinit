@@ -1458,11 +1458,11 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
         armv7l  "(arm7|armv7)"
         armv7l-2 "arm7"
         cygwin  "(windows|cygwin|[-_]win|win64|win32)"
-        darwin  "((apple|[-_]darwin|mac(-|_|)os))"
+        darwin  "*((apple|[-_]darwin|mac(-|_|)os)~*linux*)"
         i386    "((386|686|linux32|x86*(#e))~*x86_64*)"
         i686    "((386|686|linux32|x86*(#e))~*x86_64*)"
-        linux-gnu "((musl|linux[-_]musl)#)"
-        linux-musl "((musl|linux[-_]musl)#)"
+        linux-gnu  "*((#s)|/)*(linux|musl)*((#e)|/)*"
+        linux-musl "*((#s)|/)*(linux|musl)*((#e)|/)*"
         msys "(windows|msys|cygwin|[-_]win|win64|win32)"
         windows "(windows|cygwin|[-_]win|win64|win32)"
         x86_64  "(amd64|x86_64|intel)"
@@ -1482,6 +1482,9 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
     reply=()
     for bpick ( "${bpicks[@]}" ) {
         list=( $init_list )
+        # if [[ -z $bpick ]] {
+        #     list=( ${(M)list[@]:#(#i)*/$~bpick} )
+        # }
 
         # Remove checksum artifacts
         list=( ${list[@]:#*(checksums.txt|MD5SUMS|SHA1SUMS|sha256sum(#e)|manifest(#e)|pkg(#e)|sha256(#e)|AppImage(#e))*} )
@@ -1515,7 +1518,7 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
 
         # Filter URLs by OS (e.g., Darwin, Linux, Windows)
         if (( $#list > 1 )) {
-            list2=( ${(M)list[@]:#(#i)*${~matchstr[${${OSTYPE%(#i)}%%(-|)[0-9.]##}]:-${${OSTYPE%(#i)}%%(-|)[0-9.]##}}*} )
+            list2=( ${(M)list[@]:#(#i)*/${~matchstr[${${OSTYPE%(#i)}%%(-|)[0-9.]##}]:-${${OSTYPE%(#i)}%%(-|)[0-9.]##}}*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
 
             # +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} OSTYPE List: " \
