@@ -1482,9 +1482,7 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
     reply=()
     for bpick ( "${bpicks[@]}" ) {
         list=( $init_list )
-        # if [[ -z $bpick ]] {
-        #     list=( ${(M)list[@]:#(#i)*/$~bpick} )
-        # }
+
 
         # Remove checksum artifacts
         list=( ${list[@]:#*(checksums.txt|MD5SUMS|SHA1SUMS|sha256sum(#e)|manifest(#e)|pkg(#e)|sha256(#e)|AppImage(#e))*} )
@@ -1516,42 +1514,28 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
-        # Filter URLs by OS (e.g., Darwin, Linux, Windows)
-        if (( $#list > 1 )) {
-            list2=( ${(M)list[@]:#(#i)*/${~matchstr[${${OSTYPE%(#i)}%%(-|)[0-9.]##}]:-${${OSTYPE%(#i)}%%(-|)[0-9.]##}}*} )
-            (( $#list2 > 0 )) && list=( ${list2[@]} )
 
-            # +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} OSTYPE List: " \
-            # "({obj}${(pj:\n:)${list[@]:t}}{rst})"
-        }
-
-        if (( $#list > 1 )) {
-            list2=( ${(M)list[@]:#(#i)*${~matchstr[$CPUTYPE]:-${CPUTYPE#(#i)(i|amd)}}*} )
-            (( $#list2 > 0 )) && list=( ${list2[@]} )
-
-            # +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} CPUTYPE List: " \
-            #     "({obj}${(pj:\n:)${list[@]:t}}{rst})"
+        if [[ -n $bpick ]] {
+            list=( ${(M)list[@]:#(#i)*/$~bpick} )
         }
 
         if (( $#list > 1 )) {
             list2=( ${(M)list[@]:#(#i)*${~matchstr[$MACHTYPE]:-${MACHTYPE#(#i)(i|amd)}}*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
-
-            # +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} MACHTYPE List: " \
-            #     "({obj}${(pj:\n:)${list[@]:t}}{rst})"
         }
 
         if (( ${#list} > 1 && ${#matchstr[${MACHTYPE}-2]} )) {
             list2=( ${(M)list[@]:#(#i)*${~matchstr[${MACHTYPE}-2]:-${MACHTYPE#(#i)(i|amd)}}*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
-
-            # +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} MACHTYPE List: " \
-            #     "({obj}${(pj:\n:)${list[@]:t}}{rst})"
         }
 
-        # Filter URLs by OS (e.g., Darwin, Linux, Windows)
         if (( $#list > 1 )) {
-            list2=( ${(M)list[@]:#(#i)*${~matchstr[${${OSTYPE%(#i)}%%(-|)[0-9.]##}]:-${${OSTYPE%(#i)}%%(-|)[0-9.]##}}*} )
+            list2=( ${(M)list[@]:#(#i)*${~matchstr[$CPUTYPE]:-${CPUTYPE#(#i)(i|amd)}}*} )
+            (( $#list2 > 0 )) && list=( ${list2[@]} )
+        }
+
+        if (( $#list > 1 )) {
+            list2=( ${(M)list[@]:#(#i)*${~matchstr[${${OSTYPE%(#i)-(gnu|musl)}%%(-|)[0-9.]##}]:-${${OSTYPE%(#i)-(gnu|musl)}%%(-|)[0-9.]##}}*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
@@ -1560,8 +1544,18 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
-        # +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} Final list:"
-        # +zinit-message "{obj}${(pj:\n:)${list[@]:t}}{rst}"
+        if (( $#list > 1 && $+commands[dpkg-deb] )) {
+            list2=( ${list[@]:#*.deb} )
+            (( $#list2 > 0 )) && list=( ${list2[@]} )
+        }
+
+        if (( $#list > 1 && $+commands[rpm] )) {
+            list2=( ${list[@]:#*.rpm} )
+            (( $#list2 > 0 )) && list=( ${list2[@]} )
+        }
+
+        +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} Final list:"
+        +zinit-message "{obj}${(pj:\n:)${list[@]:t}}{rst}"
 
         if (( !$#list )) {
             +zinit-message -n "{error}Didn't find correct Github" \
