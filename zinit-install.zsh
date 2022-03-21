@@ -1434,6 +1434,8 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
 # FUNCTION: .zinit-get-latest-gh-r-url-part [[[
 # Gets version string of latest release of given Github
 # package. Connects to Github releases page.
+#
+#
 .zinit-get-latest-gh-r-url-part() {
     emulate -LR zsh
     setopt extendedglob warncreateglobal typesetsilent noshortloops
@@ -1448,24 +1450,24 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
     }
     local -A matchstr
     matchstr=(
-        arm64 "(aarch64|arm64)"
-        amd64   "(amd64|x86_64|intel)"
-        android "(apk)"
-        armv5l  "(arm5|armv5)"
-        armv5l-2 "arm"
-        armv6l  "(arm6|armv6)"
-        armv6l-2 "arm"
-        armv7l  "(arm7|armv7)"
-        armv7l-2 "arm7"
-        cygwin  "(windows|cygwin|[-_]win|win64|win32)"
-        darwin  "*((apple|[-_]darwin|mac(-|_|)os)~*linux*)"
-        i386    "((386|686|linux32|x86*(#e))~*x86_64*)"
-        i686    "((386|686|linux32|x86*(#e))~*x86_64*)"
-        linux-gnu  "*((#s)|/)*(linux|musl)*((#e)|/)*"
-        linux-musl "*((#s)|/)*(linux|musl)*((#e)|/)*"
-        msys "(windows|msys|cygwin|[-_]win|win64|win32)"
-        windows "(windows|cygwin|[-_]win|win64|win32)"
-        x86_64  "(amd64|x86_64|intel)"
+        arm64 '(aarch64|arm64)'
+        amd64   '(amd64|x86_64|intel)'
+        android '(apk)'
+        armv5l  '(arm5|armv5)'
+        armv5l-2 'arm'
+        armv6l  '(arm6|armv6)'
+        armv6l-2 'arm'
+        armv7l  '(arm7|armv7)'
+        armv7l-2 'arm7'
+        cygwin  '(windows|cygwin|[-_]win|win64|win32)'
+        darwin  '(apple|[-_]darwin|mac(-|_|)os)'
+        i386    '((386|686|linux32|x86*(#e))~*x86_64*)'
+        i686    '((386|686|linux32|x86*(#e))~*x86_64*)'
+        linux-gnu '(musl|linux[-_]musl)'
+        linux-musl '(musl|linux[-_]musl)'
+        msys '(windows|msys|cygwin|[-_]win|win64|win32)'
+        windows '(windows|cygwin|[-_]win|win64|win32)'
+        x86_64  '(amd64|x86_64|intel)'
     )
 
     local -a list init_list
@@ -1476,13 +1478,12 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
 
     local -a list2 bpicks
     bpicks=( ${(s.;.)ICE[bpick]} )
-    [[ -z $bpicks ]] && bpicks=( "" )
+    [[ -z $bpicks ]] && bpicks=( '' )
     local bpick
 
     reply=()
     for bpick ( "${bpicks[@]}" ) {
         list=( $init_list )
-
 
         # Remove checksum artifacts
         list=( ${list[@]:#*(checksums.txt|MD5SUMS|SHA1SUMS|sha256sum(#e)|manifest(#e)|pkg(#e)|sha256(#e)|AppImage(#e))*} )
@@ -1514,9 +1515,15 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
+        # Filter URLs by OS (e.g., Darwin, Linux, Windows)
+        if (( $#list > 1 )) {
+            list2=( ${(M)list[@]:#(#i)*${~matchstr[${${OSTYPE%(#i)}%%(-|)[0-9.]##}]:-${${OSTYPE%(#i)}%%(-|)[0-9.]##}}*} )
+            (( $#list2 > 0 )) && list=( ${list2[@]} )
+        }
 
-        if [[ -n $bpick ]] {
-            list=( ${(M)list[@]:#(#i)*/$~bpick} )
+        if (( $#list > 1 )) {
+            list2=( ${(M)list[@]:#(#i)*${~matchstr[$CPUTYPE]:-${CPUTYPE#(#i)(i|amd)}}*} )
+            (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
         if (( $#list > 1 )) {
@@ -1529,13 +1536,9 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
+        # Filter URLs by OS (e.g., Darwin, Linux, Windows)
         if (( $#list > 1 )) {
-            list2=( ${(M)list[@]:#(#i)*${~matchstr[$CPUTYPE]:-${CPUTYPE#(#i)(i|amd)}}*} )
-            (( $#list2 > 0 )) && list=( ${list2[@]} )
-        }
-
-        if (( $#list > 1 )) {
-            list2=( ${(M)list[@]:#(#i)*${~matchstr[${${OSTYPE%(#i)-(gnu|musl)}%%(-|)[0-9.]##}]:-${${OSTYPE%(#i)-(gnu|musl)}%%(-|)[0-9.]##}}*} )
+            list2=( ${(M)list[@]:#(#i)*${~matchstr[${${OSTYPE%(#i)}%%(-|)[0-9.]##}]:-${${OSTYPE%(#i)}%%(-|)[0-9.]##}}*} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
 
@@ -1543,19 +1546,6 @@ builtin source "${ZINIT[BIN_DIR]}/zinit-side.zsh" || {
             list2=( ${list[@]:#(#i)*.(sha[[:digit:]]#|asc)} )
             (( $#list2 > 0 )) && list=( ${list2[@]} )
         }
-
-        if (( $#list > 1 && $+commands[dpkg-deb] )) {
-            list2=( ${list[@]:#*.deb} )
-            (( $#list2 > 0 )) && list=( ${list2[@]} )
-        }
-
-        if (( $#list > 1 && $+commands[rpm] )) {
-            list2=( ${list[@]:#*.rpm} )
-            (( $#list2 > 0 )) && list=( ${list2[@]} )
-        }
-
-        +zinit-message "{pre}zinit-get-latest-gh-r-url-part:{rst} Final list:"
-        +zinit-message "{obj}${(pj:\n:)${list[@]:t}}{rst}"
 
         if (( !$#list )) {
             +zinit-message -n "{error}Didn't find correct Github" \
